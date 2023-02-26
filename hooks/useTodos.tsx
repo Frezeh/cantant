@@ -8,8 +8,29 @@ export default function useTodos() {
   const [currentTodo, setCurrentTodo] = useState("");
 
   const db = SQLite.openDatabase("mytodoapp");
+  const todaysDate = new Date().toLocaleString();
+  // const loadDataCallback = useCallback(() => {
+  //   db.transaction((tx) => {
+  //     tx.executeSql(
+  //       "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, activityDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, todo TEXT)"
+  //     );
+  //   });
 
-  const loadDataCallback = useCallback(() => {
+  //   db.transaction((tx) => {
+  //     tx.executeSql("SELECT * FROM todos", null!,
+  //       (txObj, resultSet) => setTodos(resultSet.rows._array),
+  //       // @ts-ignore
+  //       (txObj, error) => console.log(error)
+  //     )
+  //   });
+  
+  //   setIsLoading(false);
+  // }, [todos]);
+  
+  // useEffect(() => {
+  //   loadDataCallback()
+  // }, [loadDataCallback])
+  useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
         "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, activityDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, todo TEXT)"
@@ -18,26 +39,26 @@ export default function useTodos() {
 
     db.transaction((tx) => {
       tx.executeSql("SELECT * FROM todos", null!,
-        (txObj, resultSet) => setTodos(resultSet.rows._array),
+        (txObj, resultSet) => {
+          //console.log(resultSet.rows._array)
+          setTodos(resultSet.rows._array)
+        },
         // @ts-ignore
         (txObj, error) => console.log(error)
       )
     });
   
     setIsLoading(false);
-  }, [todos]);
+  }, [todos])
   
-  useEffect(() => {
-    loadDataCallback()
-  }, [loadDataCallback])
 
   const addTodo = () => {
     db.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO todos (todo, activityDate) values (?, ?)", [currentTodo, new Date().toLocaleString()],
+        "INSERT INTO todos (todo, activityDate) values (?, ?)", [currentTodo, todaysDate],
         (txObj, resultSet) => {
           let existingTodos = [...todos];
-          existingTodos.push({ id: resultSet.insertId, todo: currentTodo });
+          existingTodos.push({ id: resultSet.insertId, activityDate: todaysDate,  todo: currentTodo });
           setTodos(existingTodos);
           setCurrentTodo("");
         },
