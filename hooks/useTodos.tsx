@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import * as SQLite from "expo-sqlite";
 import { ToDoItem } from "../models/todo-model";
 
@@ -9,27 +9,7 @@ export default function useTodos() {
 
   const db = SQLite.openDatabase("mytodoapp");
   const todaysDate = new Date().toLocaleString();
-  // const loadDataCallback = useCallback(() => {
-  //   db.transaction((tx) => {
-  //     tx.executeSql(
-  //       "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, activityDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, todo TEXT)"
-  //     );
-  //   });
 
-  //   db.transaction((tx) => {
-  //     tx.executeSql("SELECT * FROM todos", null!,
-  //       (txObj, resultSet) => setTodos(resultSet.rows._array),
-  //       // @ts-ignore
-  //       (txObj, error) => console.log(error)
-  //     )
-  //   });
-  
-  //   setIsLoading(false);
-  // }, [todos]);
-  
-  // useEffect(() => {
-  //   loadDataCallback()
-  // }, [loadDataCallback])
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
@@ -39,10 +19,7 @@ export default function useTodos() {
 
     db.transaction((tx) => {
       tx.executeSql("SELECT * FROM todos", null!,
-        (txObj, resultSet) => {
-          //console.log(resultSet.rows._array)
-          setTodos(resultSet.rows._array)
-        },
+        (txObj, resultSet) => setTodos(resultSet.rows._array),
         // @ts-ignore
         (txObj, error) => console.log(error)
       )
